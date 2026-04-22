@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FinTrack — Операции</title>
+  <link rel="stylesheet" href="../Style/main.css" />
+  <link rel="stylesheet" href="../Style/Layouts/header.css" />
+  <link rel="stylesheet" href="../Style/Layouts/footer.css" />
+  <link rel="stylesheet" href="../Style/Components/modals.css" />
+  <link rel="stylesheet" href="../Style/Pages/operations.css" />
+  <style>
+    .ops-toolbar{display:flex;align-items:center;gap:12px;margin-bottom:22px;flex-wrap:wrap;}
+    .ops-toolbar select{background:var(--color-white);border:1px solid var(--color-border);border-radius:var(--radius-md);padding:9px 14px;font-family:var(--font-family);font-size:.88rem;color:var(--color-text-muted);outline:none;cursor:pointer;}
+    .ops-toolbar label{font-size:.82rem;color:var(--color-text-grey);}
+    .op-card{position:relative;}
+    .op-actions{display:flex;gap:8px;margin-left:auto;padding-left:16px;}
+    .btn-op-action{background:rgba(255,255,255,.18);border:none;border-radius:8px;color:var(--color-white);font-size:.78rem;padding:5px 12px;cursor:pointer;font-family:var(--font-family);transition:background var(--transition);}
+    .btn-op-action:hover{background:rgba(255,255,255,.32);}
+    .btn-op-action.del:hover{background:rgba(231,76,60,.55);}
+    .field-hint{font-size:.78rem;color:rgba(255,255,255,.85);margin-top:3px;display:block;}
+    .ops-summary{display:flex;gap:14px;margin-bottom:24px;flex-wrap:wrap;}
+    .ops-stat{background:var(--color-blue);color:var(--color-white);border-radius:var(--radius-md);padding:14px 22px;flex:1;min-width:140px;}
+    .ops-stat-label{font-size:.72rem;color:rgba(255,255,255,.65);text-transform:uppercase;letter-spacing:.1em;}
+    .ops-stat-val{font-size:1.2rem;font-weight:800;margin-top:4px;}
+    .ops-stat-val.inc{color:var(--color-income-amount);}
+    .ops-stat-val.exp{color:var(--color-expense-amount);}
+    .loading-msg{text-align:center;color:#aaa;padding:40px 0;font-size:.95rem;}
+    .analytics-section{margin-top:36px;}
+    .analytics-title{font-size:.82rem;font-weight:800;text-transform:uppercase;letter-spacing:.12em;color:var(--color-text-grey);margin-bottom:16px;}
+    .chart-bars{display:flex;flex-direction:column;gap:10px;}
+    .chart-row{display:flex;align-items:center;gap:12px;}
+    .chart-label{width:140px;font-size:.82rem;color:var(--color-text-mid);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:0;}
+    .chart-bar-wrap{flex:1;background:var(--color-bg-grey);border-radius:6px;height:22px;overflow:hidden;}
+    .chart-bar-fill{height:100%;background:var(--color-blue);border-radius:6px;transition:width .4s ease;}
+    .chart-amount{width:90px;text-align:right;font-size:.82rem;font-weight:700;color:var(--color-text-mid);flex-shrink:0;}
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="../index.html" class="logo">FinTrack</a>
+      <nav><ul class="nav-list">
+        <li><a href="main.html"       class="nav-link">Главная</a></li>
+        <li><a href="budget.html"     class="nav-link">Бюджет</a></li>
+        <li><a href="categories.html" class="nav-link">Категории</a></li>
+        <li><a href="operations.html" class="nav-link active">Операции</a></li>
+        <li><a href="advice.html"     class="nav-link">Советы</a></li>
+        <li><a href="settings.html"   class="nav-link">Настройки</a></li>
+      </ul></nav>
+      <div class="header-user-info" id="header-user-info" style="display:none;">
+        <span class="header-user-email" id="header-user-email"></span>
+        <button class="btn-header-logout" id="btn-logout">Выйти</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="page-hero">
+    <div class="page-hero-inner">
+      <h1 class="page-hero-title">Операции</h1>
+      <span class="page-hero-sub">все расходы и доходы</span>
+    </div>
+  </div>
+
+  <main class="page-main">
+    <div class="page-inner">
+      <div class="tabs">
+        <button class="tab-btn active" data-period="today">Сегодня</button>
+        <button class="tab-btn" data-period="week">Неделя</button>
+        <button class="tab-btn" data-period="month">Месяц</button>
+        <button class="tab-btn" data-period="all">Все</button>
+      </div>
+
+      <div class="ops-summary">
+        <div class="ops-stat"><div class="ops-stat-label">Доходы</div><div class="ops-stat-val inc" id="stat-income">—</div></div>
+        <div class="ops-stat"><div class="ops-stat-label">Расходы</div><div class="ops-stat-val exp" id="stat-expense">—</div></div>
+        <div class="ops-stat"><div class="ops-stat-label">Баланс</div><div class="ops-stat-val" id="stat-balance">—</div></div>
+      </div>
+
+      <div class="ops-toolbar">
+        <label>Тип:</label>
+        <select id="filter-type">
+          <option value="">Все</option>
+          <option value="income">Доходы</option>
+          <option value="expense">Расходы</option>
+        </select>
+        <label>Категория:</label>
+        <select id="filter-category"><option value="">Все категории</option></select>
+        <label>Сортировка:</label>
+        <select id="filter-sort">
+          <option value="desc">Новые сначала</option>
+          <option value="asc">Старые сначала</option>
+        </select>
+      </div>
+
+      <div class="operations-list" id="operations-list"><div class="loading-msg">Загрузка...</div></div>
+
+      <div class="analytics-section" id="analytics-section" style="display:none;">
+        <div class="analytics-title">Расходы по категориям (текущий период)</div>
+        <div class="chart-bars" id="chart-bars"></div>
+      </div>
+
+      <div class="page-actions" style="margin-top:32px;">
+        <button class="btn-pill"         id="btn-add-income">Добавить доход</button>
+        <button class="btn-pill primary" id="btn-add-expense">Добавить расход</button>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-top">
+      <div class="footer-brand"><div class="footer-logo">FinTrack</div><p>FinTrack — твоя система учёта личных финансов без лишнего и сложного.</p></div>
+      <nav class="footer-nav"><h5>Компания</h5><ul><li><a href="#">о нас</a></li><li><a href="#">контакты</a></li><li><a href="#">FAQ</a></li><li><a href="#">помощь</a></li></ul></nav>
+    </div>
+    <div class="footer-bottom">© 2026 FinTrack. Все права защищены.</div>
+  </footer>
+
+  <!-- Модал: доход -->
+  <div class="modal-overlay" id="modal-income">
+    <div class="modal">
+      <button class="modal-close" data-close="modal-income">×</button>
+      <div class="modal-title">Добавить доход</div>
+      <div class="modal-form" id="form-income">
+        <div class="field-full"><input type="number" id="income-amount" placeholder="Сумма, ₽" min="0.01" step="0.01" /></div>
+        <div class="field-full"><input type="text"   id="income-desc"   placeholder="Описание" maxlength="200" /></div>
+        <div class="field-row">
+          <select id="income-category"><option value="">Категория</option></select>
+          <input type="date" id="income-date" />
+        </div>
+        <div class="form-message" id="msg-income"></div>
+        <div class="modal-actions">
+          <button class="btn-modal-cancel" data-close="modal-income">Отмена</button>
+          <button class="btn-modal-save"   id="save-income">Сохранить</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Модал: расход -->
+  <div class="modal-overlay" id="modal-expense">
+    <div class="modal">
+      <button class="modal-close" data-close="modal-expense">×</button>
+      <div class="modal-title">Добавить расход</div>
+      <div class="modal-form" id="form-expense">
+        <div class="field-full"><input type="number" id="expense-amount" placeholder="Сумма, ₽" min="0.01" step="0.01" /></div>
+        <div class="field-full"><input type="text"   id="expense-desc"   placeholder="Описание" maxlength="200" /></div>
+        <div class="field-row">
+          <select id="expense-category"><option value="">Категория</option></select>
+          <input type="date" id="expense-date" />
+        </div>
+        <div class="form-message" id="msg-expense"></div>
+        <div class="modal-actions">
+          <button class="btn-modal-cancel" data-close="modal-expense">Отмена</button>
+          <button class="btn-modal-save"   id="save-expense">Сохранить</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Модал: редактирование -->
+  <div class="modal-overlay" id="modal-edit">
+    <div class="modal">
+      <button class="modal-close" data-close="modal-edit">×</button>
+      <div class="modal-title">Редактировать операцию</div>
+      <div class="modal-form" id="form-edit">
+        <input type="hidden" id="edit-op-id" />
+        <input type="hidden" id="edit-op-type" />
+        <div class="field-full"><input type="number" id="edit-amount"  placeholder="Сумма, ₽" min="0.01" step="0.01" /></div>
+        <div class="field-full"><input type="text"   id="edit-desc"    placeholder="Описание" maxlength="200" /></div>
+        <div class="field-row">
+          <select id="edit-category"><option value="">Категория</option></select>
+          <input type="date" id="edit-date" />
+        </div>
+        <div class="form-message" id="msg-edit"></div>
+        <div class="modal-actions">
+          <button class="btn-modal-cancel" data-close="modal-edit">Отмена</button>
+          <button class="btn-modal-save"   id="save-edit">Сохранить</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { escapeHtml, sanitizeInput, validateAmount, validateText, validateDate, setFieldError, clearFormErrors, formatMoney } from '../Scripts/functions/validate.js';
+    import { Operations, Categories } from '../Scripts/functions/api.js';
+
+    const CAT_ICONS = {'Зарплата':'💼','Фриланс':'💻','Инвестиции':'📈','Подарок':'🎁','Продукты':'🛒','Транспорт':'🚇','Кафе':'☕','Одежда':'👕','Здоровье':'💊','Развлечения':'🎬','Коммунальные':'💡'};
+    const getIcon = n => { if (!n) return '💰'; for (const [k,v] of Object.entries(CAT_ICONS)) { if (n.toLowerCase().includes(k.toLowerCase())) return v; } return '💰'; };
+    const fmtDate = d => new Date(d).toLocaleDateString('ru-RU',{day:'2-digit',month:'2-digit',year:'numeric'});
+    const fmt     = n => formatMoney(n,'₽');
+
+    let currentPeriod = 'today';
+
+    // ── Модалы ──
+    const openModal  = id => { document.getElementById(id).classList.add('open');    document.body.style.overflow='hidden'; };
+    const closeModal = id => { document.getElementById(id).classList.remove('open'); document.body.style.overflow=''; };
+    document.querySelectorAll('[data-close]').forEach(el => el.addEventListener('click', () => closeModal(el.dataset.close)));
+    document.querySelectorAll('.modal-overlay').forEach(o => o.addEventListener('click', e => { if(e.target===o){ o.classList.remove('open'); document.body.style.overflow=''; } }));
+    document.addEventListener('keydown', e => { if(e.key==='Escape') document.querySelectorAll('.modal-overlay.open').forEach(o=>{ o.classList.remove('open'); document.body.style.overflow=''; }); });
+
+    const showMsg = (id, text, type='error') => { const el=document.getElementById(id); el.textContent=text; el.className=`form-message show ${type}`; };
+    const hideMsg = id => { document.getElementById(id).className='form-message'; };
+
+    // ── Категории ──
+    async function loadCategories() {
+      try {
+        const res = await Categories.list();
+        const cats = res.data ?? [];
+        ['income-category','expense-category','edit-category','filter-category'].forEach(selId => {
+          const sel = document.getElementById(selId);
+          const isFilter = selId==='filter-category';
+          sel.innerHTML = isFilter ? '<option value="">Все категории</option>' : '<option value="">Категория</option>';
+          cats.forEach(c => {
+            const opt = document.createElement('option');
+            opt.value = c.CategoryID;
+            opt.textContent = escapeHtml(c.CategoryName);
+            sel.appendChild(opt);
+          });
+        });
+      } catch(e) { console.error('loadCategories:', e); }
+    }
+
+    // ── Операции ──
+    async function loadOps() {
+      const list   = document.getElementById('operations-list');
+      const type   = document.getElementById('filter-type').value;
+      const catId  = document.getElementById('filter-category').value;
+      const sort   = document.getElementById('filter-sort').value;
+      list.innerHTML = '<div class="loading-msg">Загрузка...</div>';
+      try {
+        const params = { period: currentPeriod, sort };
+        if (type)  params.type        = type;
+        if (catId) params.category_id = catId;
+        const res = await Operations.list(params);
+        const ops = res.data ?? [];
+        renderOps(ops); renderStats(ops); renderChart(ops);
+      } catch(e) {
+        list.innerHTML = '<div class="loading-msg">Ошибка загрузки. Проверьте подключение к серверу.</div>';
+      }
+    }
+
+    function renderOps(ops) {
+      const list = document.getElementById('operations-list');
+      if (!ops.length) { list.innerHTML='<div class="loading-msg">Нет операций за этот период</div>'; return; }
+      list.innerHTML = ops.map(op => {
+        const icon   = getIcon(op.CategoryName);
+        const amount = parseFloat(op.Sum);
+        const sign   = op.OperationType==='income' ? '+' : '−';
+        const cat    = escapeHtml(op.CategoryName ?? 'Прочее');
+        const cmt    = escapeHtml(op.Comment ?? '');
+        return `<div class="op-card" data-id="${op.OperationID}">
+          <div class="op-icon">${icon}</div>
+          <div class="op-info">
+            <div class="op-title">${cmt || cat}</div>
+            <div class="op-meta">${cat}</div>
+          </div>
+          <div class="op-right">
+            <div class="op-amount ${op.OperationType}">${sign}${amount.toLocaleString('ru-RU')} ₽</div>
+            <div class="op-date">${fmtDate(op.OperationDate)}</div>
+          </div>
+          <div class="op-actions">
+            <button class="btn-op-action edit-btn"
+              data-id="${op.OperationID}" data-type="${op.OperationType}"
+              data-sum="${amount}" data-comment="${cmt}"
+              data-cat="${op.CategoryID}" data-date="${(op.OperationDate||'').slice(0,10)}">✎</button>
+            <button class="btn-op-action del del-btn" data-id="${op.OperationID}">✕</button>
+          </div>
+        </div>`;
+      }).join('');
+
+      list.querySelectorAll('.edit-btn').forEach(btn => btn.addEventListener('click', () => {
+        document.getElementById('edit-op-id').value   = btn.dataset.id;
+        document.getElementById('edit-op-type').value = btn.dataset.type;
+        document.getElementById('edit-amount').value  = btn.dataset.sum;
+        document.getElementById('edit-desc').value    = btn.dataset.comment;
+        document.getElementById('edit-date').value    = btn.dataset.date;
+        setTimeout(() => { document.getElementById('edit-category').value = btn.dataset.cat; }, 30);
+        hideMsg('msg-edit');
+        openModal('modal-edit');
+      }));
+
+      list.querySelectorAll('.del-btn').forEach(btn => btn.addEventListener('click', async () => {
+        if (!confirm('Удалить эту операцию?')) return;
+        try {
+          const res = await Operations.remove(parseInt(btn.dataset.id));
+          if (res.success) loadOps(); else alert('Ошибка при удалении');
+        } catch(e) { alert('Ошибка сервера'); }
+      }));
+    }
+
+    function renderStats(ops) {
+      const inc = ops.filter(o=>o.OperationType==='income').reduce((s,o)=>s+parseFloat(o.Sum),0);
+      const exp = ops.filter(o=>o.OperationType==='expense').reduce((s,o)=>s+parseFloat(o.Sum),0);
+      document.getElementById('stat-income').textContent  = fmt(inc);
+      document.getElementById('stat-expense').textContent = fmt(exp);
+      const el = document.getElementById('stat-balance');
+      el.textContent = fmt(inc-exp);
+      el.style.color = inc-exp>=0 ? 'var(--color-income-amount)' : 'var(--color-expense-amount)';
+    }
+
+    function renderChart(ops) {
+      const section = document.getElementById('analytics-section');
+      const exps    = ops.filter(o=>o.OperationType==='expense');
+      if (!exps.length) { section.style.display='none'; return; }
+      const bycat = {};
+      exps.forEach(o => { const k=o.CategoryName||'Прочее'; bycat[k]=(bycat[k]||0)+parseFloat(o.Sum); });
+      const sorted = Object.entries(bycat).sort((a,b)=>b[1]-a[1]).slice(0,6);
+      const maxVal = sorted[0][1];
+      document.getElementById('chart-bars').innerHTML = sorted.map(([name,total]) =>
+        `<div class="chart-row">
+          <div class="chart-label" title="${escapeHtml(name)}">${escapeHtml(name)}</div>
+          <div class="chart-bar-wrap"><div class="chart-bar-fill" style="width:${Math.round(total/maxVal*100)}%"></div></div>
+          <div class="chart-amount">${total.toLocaleString('ru-RU')} ₽</div>
+        </div>`).join('');
+      section.style.display = 'block';
+    }
+
+    // ── Сохранить новую операцию ──
+    async function saveOp(type) {
+      const p   = type==='income'?'income':'expense';
+      const aEl = document.getElementById(`${p}-amount`);
+      const dEl = document.getElementById(`${p}-desc`);
+      const cEl = document.getElementById(`${p}-category`);
+      const dtEl= document.getElementById(`${p}-date`);
+      clearFormErrors(document.getElementById(`form-${p}`));
+      hideMsg(`msg-${p}`);
+      const aR=validateAmount(aEl.value), dR=validateText(dEl.value,{required:false,max:200}), dtR=validateDate(dtEl.value);
+      let err=false;
+      if(!aR.valid){setFieldError(aEl,aR.error);err=true;}
+      if(!dR.valid){setFieldError(dEl,dR.error);err=true;}
+      if(err) return;
+      try {
+        const btn=document.getElementById(`save-${p}`); btn.disabled=true;
+        const res=await Operations.add({sum:aR.value,type,category_id:parseInt(cEl.value)||0,comment:sanitizeInput(dEl.value),date:dtR.value+' 00:00:00'});
+        btn.disabled=false;
+        if(res.success){ closeModal(`modal-${p}`); aEl.value=''; dEl.value=''; dtEl.value=''; cEl.value=''; loadOps(); }
+        else showMsg(`msg-${p}`, res.error||'Ошибка сохранения');
+      } catch(e){ document.getElementById(`save-${p}`).disabled=false; showMsg(`msg-${p}`,'Ошибка сервера'); }
+    }
+
+    document.getElementById('save-income').addEventListener('click',  () => saveOp('income'));
+    document.getElementById('save-expense').addEventListener('click', () => saveOp('expense'));
+
+    // ── Редактировать ──
+    document.getElementById('save-edit').addEventListener('click', async () => {
+      const opId=parseInt(document.getElementById('edit-op-id').value);
+      const opType=document.getElementById('edit-op-type').value;
+      const aEl=document.getElementById('edit-amount'),dEl=document.getElementById('edit-desc'),cEl=document.getElementById('edit-category'),dtEl=document.getElementById('edit-date');
+      clearFormErrors(document.getElementById('form-edit')); hideMsg('msg-edit');
+      const aR=validateAmount(aEl.value),dR=validateText(dEl.value,{required:false,max:200}),dtR=validateDate(dtEl.value);
+      let err=false;
+      if(!aR.valid){setFieldError(aEl,aR.error);err=true;}
+      if(!dR.valid){setFieldError(dEl,dR.error);err=true;}
+      if(err) return;
+      try {
+        const btn=document.getElementById('save-edit'); btn.disabled=true;
+        const res=await Operations.update({operation_id:opId,type:opType,sum:aR.value,category_id:parseInt(cEl.value)||0,comment:sanitizeInput(dEl.value),date:dtR.value+' 00:00:00'});
+        btn.disabled=false;
+        if(res.success){ closeModal('modal-edit'); loadOps(); } else showMsg('msg-edit',res.error||'Ошибка');
+      } catch(e){ document.getElementById('save-edit').disabled=false; showMsg('msg-edit','Ошибка сервера'); }
+    });
+
+    // ── Табы/фильтры ──
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      currentPeriod=btn.dataset.period;
+      loadOps();
+    }));
+    ['filter-type','filter-category','filter-sort'].forEach(id => document.getElementById(id).addEventListener('change', loadOps));
+    document.getElementById('btn-add-income').addEventListener('click',  () => { hideMsg('msg-income');  openModal('modal-income');  });
+    document.getElementById('btn-add-expense').addEventListener('click', () => { hideMsg('msg-expense'); openModal('modal-expense'); });
+
+    // ── Сессия ──
+    function updateHeaderAuth(ok,email){const b=document.getElementById('header-user-info'),e=document.getElementById('header-user-email');if(ok){b.style.display='flex';e.textContent=email;}else b.style.display='none';}
+    document.getElementById('btn-logout').addEventListener('click', async()=>{try{await fetch('../Backend/auth/logout.php',{credentials:'same-origin'});}catch(e){}updateHeaderAuth(false);});
+    (async()=>{try{const r=await fetch('../Backend/auth/check_session.php',{credentials:'same-origin'});const d=await r.json();if(d.logged_in)updateHeaderAuth(true,d.email);}catch(e){}})();
+
+    await loadCategories();
+    await loadOps();
+  </script>
+</body>
+</html>

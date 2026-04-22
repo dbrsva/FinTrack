@@ -1,0 +1,205 @@
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.22s, visibility 0.22s;
+}
+
+.modal-overlay.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.modal {
+  background: var(--color-orange);
+  border-radius: var(--radius-xl);
+  padding: 30px;
+  width: 400px;
+  position: relative;
+  transform: translateY(16px);
+  transition: transform 0.22s;
+}
+
+.modal-overlay.open .modal {
+  transform: translateY(0);
+}
+
+.modal-close {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  background: none;
+  border: none;
+  color: var(--color-white);
+  font-size: 1.4rem;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 50%;
+  transition: background var(--transition);
+}
+.modal-close:hover { background: rgba(255, 255, 255, 0.18); }
+
+.modal-title {
+  text-align: center;
+  font-size: 0.85rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--color-white);
+  margin-bottom: 22px;
+}
+
+.modal-tabs {
+  display: flex;
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: var(--radius-md);
+  padding: 4px;
+  margin-bottom: 22px;
+  gap: 4px;
+}
+
+.modal-tab {
+  flex: 1;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 9px;
+  font-family: var(--font-family);
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.75);
+  cursor: pointer;
+  transition: background var(--transition), color var(--transition);
+}
+.modal-tab.active {
+  background: var(--color-white);
+  color: var(--color-orange);
+}
+
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.field-full input,
+.field-full select,
+.field-full textarea {
+  width: 100%;
+  background: var(--color-white);
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 13px 16px;
+  font-family: var(--font-family);
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  outline: none;
+  transition: box-shadow var(--transition);
+}
+.field-full input:focus,
+.field-full select:focus { box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.7); }
+
+.field-full input.input-error { box-shadow: 0 0 0 2px var(--color-danger); }
+
+.field-full textarea {
+  height: 88px;
+  resize: none;
+}
+
+.field-row {
+  display: flex;
+  gap: 10px;
+}
+
+.field-row select,
+.field-row input[type="date"] {
+  flex: 1;
+  background: var(--color-white);
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 13px 14px;
+  font-family: var(--font-family);
+  font-size: 0.88rem;
+  color: var(--color-text-muted);
+  outline: none;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+}
+
+.btn-modal-cancel {
+  background: var(--color-beige);
+  color: var(--color-text-dark);
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 11px 28px;
+  font-family: var(--font-family);
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--transition);
+}
+.btn-modal-cancel:hover { background: var(--color-beige-dark); }
+
+.btn-modal-save {
+  background: var(--color-blue);
+  color: var(--color-white);
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 11px 28px;
+  font-family: var(--font-family);
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--transition);
+}
+.btn-modal-save:hover { background: var(--color-blue-dark); }
+.btn-modal-save:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.btn-modal-save.green {
+  background: #8BC34A;
+}
+.btn-modal-save.green:hover { background: #7ab03e; }
+
+.form-message {
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  font-size: 0.84rem;
+  font-weight: 600;
+  text-align: center;
+  display: none;
+}
+.form-message.show { display: block; }
+.form-message.error {
+  background: rgba(231, 76, 60, 0.25);
+  color: var(--color-white);
+  border: 1px solid rgba(231, 76, 60, 0.5);
+}
+.form-message.success {
+  background: rgba(76, 175, 80, 0.25);
+  color: var(--color-white);
+  border: 1px solid rgba(76, 175, 80, 0.5);
+}
+
+/* ── Validation hints (added by validate.js) ── */
+.field-hint {
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.9);
+  margin-top: 4px;
+  display: block;
+  padding-left: 4px;
+}
+
+input.input-error,
+select.input-error {
+  box-shadow: 0 0 0 2px var(--color-danger) !important;
+}

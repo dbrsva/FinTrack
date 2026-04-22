@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FinTrack — Советы</title>
+
+  <link rel="stylesheet" href="../Style/main.css" />
+  <link rel="stylesheet" href="../Style/Layouts/header.css" />
+  <link rel="stylesheet" href="../Style/Layouts/footer.css" />
+  <link rel="stylesheet" href="../Style/Pages/advice.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="../index.html" class="logo">FinTrack</a>
+      <nav>
+        <ul class="nav-list">
+          <li><a href="main.html" class="nav-link">Главная</a></li>
+          <li><a href="budget.html" class="nav-link">Бюджет</a></li>
+          <li><a href="categories.html" class="nav-link">Категории</a></li>
+          <li><a href="operations.html" class="nav-link">Операции</a></li>
+          <li><a href="advice.html" class="nav-link active">Советы</a></li>
+          <li><a href="settings.html" class="nav-link">Настройки</a></li>
+        </ul>
+      </nav>
+
+      <div class="header-user-info" id="header-user-info" style="display:none;">
+        <span class="header-user-email" id="header-user-email"></span>
+        <button class="btn-header-logout" id="btn-logout">Выйти</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="page-banner">
+    <div class="page-banner-inner">
+      <h1>Советы</h1>
+      <span>советы по организации вашего бюджета</span>
+    </div>
+  </div>
+
+  <main class="advice-main">
+    <div class="advice-inner" id="advice-container">
+      <div class="advice-empty">Загрузка...</div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <div class="footer-logo">FinTrack</div>
+        <p>FinTrack — твоя система учёта личных финансов без лишнего и сложного.</p>
+      </div>
+      <nav class="footer-nav">
+        <h5>Компания</h5>
+        <ul>
+          <li><a href="#">о нас</a></li>
+          <li><a href="#">контакты</a></li>
+          <li><a href="#">FAQ</a></li>
+          <li><a href="#">помощь</a></li>
+        </ul>
+      </nav>
+    </div>
+    <div class="footer-bottom">© 2026 FinTrack. Все права защищены.</div>
+  </footer>
+
+  <script>
+    async function loadTips() {
+      const container = document.getElementById('advice-container');
+      try {
+        const res = await fetch('../Backend/advice.php', { credentials: 'same-origin' });
+        const tips = await res.json();
+        if (!tips || tips.length === 0) {
+          container.innerHTML = '<div class="advice-empty">Советы не найдены.</div>';
+          return;
+        }
+        container.innerHTML = tips.map(tip => `
+          <div class="advice-card">
+            <div class="advice-card-title">${escapeHtml(tip.Title)}</div>
+            <div class="advice-card-text">${escapeHtml(tip.TipText)}</div>
+          </div>
+        `).join('');
+      } catch (err) {
+        container.innerHTML = '<div class="advice-empty">Ошибка загрузки советов.</div>';
+        console.error('Ошибка загрузки советов:', err);
+      }
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+    
+
+    function updateHeaderAuth(loggedIn, email) {
+      const userBlock = document.getElementById('header-user-info');
+      const emailEl   = document.getElementById('header-user-email');
+      if (loggedIn) {
+        userBlock.style.display = 'flex';
+        emailEl.textContent = email;
+      } else {
+        userBlock.style.display = 'none';
+      }
+    }
+
+    document.getElementById('btn-logout').addEventListener('click', async () => {
+      try { await fetch('../Backend/auth/logout.php', { credentials: 'same-origin' }); } catch(e) {}
+      updateHeaderAuth(false);
+    });
+
+    (async function checkSession() {
+      try {
+        const res  = await fetch('../Backend/auth/check_session.php', { credentials: 'same-origin' });
+        const data = await res.json();
+        if (data.logged_in) updateHeaderAuth(true, data.email);
+      } catch(e) {}
+    })();
+
+    loadTips();
+  </script>
+
+</body>
+</html>

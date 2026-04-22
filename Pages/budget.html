@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FinTrack — Бюджет</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+  <link rel="stylesheet" href="../Style/main.css" />
+  <link rel="stylesheet" href="../Style/Layouts/header.css" />
+  <link rel="stylesheet" href="../Style/Layouts/footer.css" />
+  <link rel="stylesheet" href="../Style/Components/modals.css" />
+
+  <link rel="stylesheet" href="../Style/Pages/budget.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="../index.html" class="logo">FinTrack</a>
+      <nav>
+        <ul class="nav-list">
+          <li><a href="../Pages/main.html" class="nav-link">Главная</a></li>
+          <li><a href="#" class="nav-link active">Бюджет</a></li>
+          <li><a href="categories.html" class="nav-link">Категории</a></li>
+          <li><a href="operations.html" class="nav-link">Операции</a></li>
+          <li><a href="advice.html" class="nav-link">Советы</a></li>
+          <li><a href="settings.html" class="nav-link">Настройки</a></li>
+        </ul>
+      </nav>
+
+      <div class="header-user-info" id="header-user-info" style="display:none;">
+        <span class="header-user-email" id="header-user-email"></span>
+        <button class="btn-header-logout" id="btn-logout">Выйти</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="page-banner">
+    <div class="page-banner-inner">
+      <h1>Бюджет</h1>
+      <span>контроль лимита расходов</span>
+    </div>
+  </div>
+
+  <main class="budget-main">
+    <div class="budget-inner">
+
+      <div class="budget-card">
+        <div class="budget-card-title">Месячный бюджет</div>
+        <div class="budget-card-period" id="monthly-period">Загрузка...</div>
+        <div class="limit-field">
+          Сумма лимита: <strong id="monthly-limit-display">—</strong>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-spent" id="monthly-bar-spent" style="width:0%"></div>
+          <div class="progress-left"  id="monthly-bar-left"  style="width:100%"></div>
+        </div>
+        <div class="budget-info">
+          <p>Лимит: <span id="monthly-limit-text">—</span></p>
+          <p>Потрачено: <strong id="monthly-spent-text">—</strong></p>
+          <p>Осталось: <strong id="monthly-left-text">—</strong></p>
+        </div>
+        <button class="btn-change" onclick="openModal('modal-monthly')">Изменить бюджет</button>
+      </div>
+
+      <div class="budget-card">
+        <div class="budget-card-title">Недельный бюджет</div>
+        <div class="budget-card-period" id="weekly-period">Загрузка...</div>
+        <div class="limit-field">
+          Сумма лимита: <strong id="weekly-limit-display">—</strong>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-spent" id="weekly-bar-spent" style="width:0%"></div>
+          <div class="progress-left"  id="weekly-bar-left"  style="width:100%"></div>
+        </div>
+        <div class="budget-info">
+          <p>Лимит: <span id="weekly-limit-text">—</span></p>
+          <p>Потрачено: <strong id="weekly-spent-text">—</strong></p>
+          <p>Осталось: <strong id="weekly-left-text">—</strong></p>
+        </div>
+        <button class="btn-change" onclick="openModal('modal-weekly')">Изменить бюджет</button>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <div class="footer-logo">FinTrack</div>
+        <p>FinTrack — твоя система учёта личных финансов без лишнего и сложного.</p>
+      </div>
+      <nav class="footer-nav">
+        <h5>Компания</h5>
+        <ul>
+          <li><a href="#">о нас</a></li>
+          <li><a href="#">контакты</a></li>
+          <li><a href="#">FAQ</a></li>
+          <li><a href="#">помощь</a></li>
+        </ul>
+      </nav>
+    </div>
+    <div class="footer-bottom">© 2026 FinTrack. Все права защищены.</div>
+  </footer>
+
+  <div class="modal-overlay" id="modal-monthly">
+    <div class="modal">
+      <button class="modal-close" data-close>✕</button>
+      <h2 class="modal-title">Месячный бюджет</h2>
+      <form class="modal-form" id="form-monthly" novalidate>
+        <div class="field-full">
+          <input type="number" id="monthly-new-limit" placeholder="Новый лимит (₽)" min="1" step="1" required />
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn-modal-cancel" data-close>Отмена</button>
+          <button type="submit" class="btn-modal-save">Сохранить</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modal-weekly">
+    <div class="modal">
+      <button class="modal-close" data-close>✕</button>
+      <h2 class="modal-title">Недельный бюджет</h2>
+      <form class="modal-form" id="form-weekly" novalidate>
+        <div class="field-full">
+          <input type="number" id="weekly-new-limit" placeholder="Новый лимит (₽)" min="1" step="1" required />
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn-modal-cancel" data-close>Отмена</button>
+          <button type="submit" class="btn-modal-save">Сохранить</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = (() => {
+      const port = location.port;
+      const base = location.protocol + '//' + location.hostname + (port ? ':' + port : '');
+      const path = location.pathname.replace(/\/Pages\/.*$/, '').replace(/\/index\.html$/, '');
+      return base + path + '/Backend';
+    })();
+
+    function fmt(n) { return Number(n).toLocaleString('ru-RU') + '\u00A0₽'; }
+
+    function renderCard(type, data) {
+      if (!data || !data.budget) {
+        document.getElementById(`${type}-period`).textContent = 'Бюджет не установлен';
+        document.getElementById(`${type}-limit-display`).textContent = '—';
+        document.getElementById(`${type}-limit-text`).textContent    = '—';
+        document.getElementById(`${type}-spent-text`).textContent    = '0 ₽';
+        document.getElementById(`${type}-left-text`).textContent     = '—';
+        document.getElementById(`${type}-bar-spent`).style.width     = '0%';
+        document.getElementById(`${type}-bar-left`).style.width      = '100%';
+        return;
+      }
+      const limit    = parseFloat(data.budget.SumLimit);
+      const spent    = parseFloat(data.spent);
+      const left     = parseFloat(data.remaining);
+      const spentPct = data.percent;
+      const leftPct  = 100 - spentPct;
+      const now = new Date();
+      const periodType = data.budget.PeriodType;
+      let periodLabel = '';
+      if (periodType === 'month') {
+        periodLabel = now.toLocaleString('ru-RU', { month: 'long', year: 'numeric' });
+      } else if (periodType === 'week') {
+        const monday = new Date(now);
+        monday.setDate(now.getDate() - ((now.getDay() + 6) % 7));
+        const sunday = new Date(monday);
+        sunday.setDate(monday.getDate() + 6);
+        const fmt2 = d => d.toLocaleString('ru-RU', { day: 'numeric', month: 'short' });
+        periodLabel = fmt2(monday) + ' — ' + fmt2(sunday);
+      } else {
+        periodLabel = now.toLocaleString('ru-RU', { day: 'numeric', month: 'long' });
+      }
+      document.getElementById(`${type}-period`).textContent        = 'Активный период: ' + periodLabel;
+      document.getElementById(`${type}-limit-display`).textContent = fmt(limit);
+      document.getElementById(`${type}-limit-text`).textContent    = fmt(limit);
+      document.getElementById(`${type}-spent-text`).textContent    = fmt(spent);
+      document.getElementById(`${type}-left-text`).textContent     = fmt(left);
+      document.getElementById(`${type}-bar-spent`).style.width     = spentPct + '%';
+      document.getElementById(`${type}-bar-left`).style.width      = leftPct  + '%';
+    }
+
+    async function loadBudget(period, type) {
+      try {
+        const res  = await fetch(`${API_BASE}/budget/index.php?period=${period}`, { credentials: 'same-origin' });
+        if (res.status === 401) { window.location.href = '../index.html'; return; }
+        const data = await res.json();
+        renderCard(type, data);
+      } catch (err) { console.error('Ошибка загрузки бюджета:', err); }
+    }
+
+    async function loadAll() {
+      await Promise.all([loadBudget('month', 'monthly'), loadBudget('week', 'weekly')]);
+    }
+
+    async function saveBudget(period, limit) {
+      const res = await fetch(`${API_BASE}/budget/index.php`, {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ limit, period }),
+      });
+      if (res.status === 401) { window.location.href = '../index.html'; return; }
+      if (!res.ok) throw new Error('Ошибка сохранения');
+    }
+
+    function openModal(id) { document.getElementById(id).classList.add('open'); document.body.style.overflow = 'hidden'; }
+    function closeModal(el) { el.classList.remove('open'); document.body.style.overflow = ''; }
+
+    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+      overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(overlay); });
+    });
+    document.querySelectorAll('[data-close]').forEach(btn => {
+      btn.addEventListener('click', () => closeModal(btn.closest('.modal-overlay')));
+    });
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') document.querySelectorAll('.modal-overlay.open').forEach(closeModal);
+    });
+
+    document.getElementById('form-monthly').addEventListener('submit', async e => {
+      e.preventDefault();
+      const limit = parseFloat(document.getElementById('monthly-new-limit').value);
+      if (!limit || limit <= 0) { alert('Введите лимит'); return; }
+      try {
+        await saveBudget('month', limit);
+        await loadBudget('month', 'monthly');
+        e.target.reset();
+        closeModal(document.getElementById('modal-monthly'));
+      } catch (err) { alert('Не удалось сохранить. Проверь что сервер запущен.'); }
+    });
+
+    document.getElementById('form-weekly').addEventListener('submit', async e => {
+      e.preventDefault();
+      const limit = parseFloat(document.getElementById('weekly-new-limit').value);
+      if (!limit || limit <= 0) { alert('Введите лимит'); return; }
+      try {
+        await saveBudget('week', limit);
+        await loadBudget('week', 'weekly');
+        e.target.reset();
+        closeModal(document.getElementById('modal-weekly'));
+      } catch (err) { alert('Не удалось сохранить. Проверь что сервер запущен.'); }
+    });
+
+    function updateHeaderAuth(loggedIn, email) {
+      const userBlock = document.getElementById("header-user-info");
+      const emailEl   = document.getElementById("header-user-email");
+      if (loggedIn) {
+        userBlock.style.display = "flex";
+        emailEl.textContent = email;
+      } else {
+        userBlock.style.display = "none";
+      }
+    }
+    document.getElementById("btn-logout").addEventListener("click", async () => {
+      try { await fetch("../Backend/auth/logout.php", { credentials: "same-origin" }); } catch(e) {}
+      window.location.href = '../index.html';
+    });
+
+    (async function checkSession() {
+      try {
+        const res  = await fetch("../Backend/auth/check_session.php", { credentials: "same-origin" });
+        const data = await res.json();
+        if (data.logged_in) {
+          updateHeaderAuth(true, data.email);
+          loadAll();
+        } else {
+          window.location.href = '../index.html';
+        }
+      } catch(e) {
+        window.location.href = '../index.html';
+      }
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,81 @@
+@import url('Ui/fonts.css');
+
+:root {
+  --color-white:      #FFFFFF;
+  --color-orange:     #DD6E42;
+  --color-orange-dark:#c85e35;
+  --color-blue:       #4F6D7A;
+  --color-blue-dark:  #3a5260;
+  --color-beige:      #E8DAB2;
+  --color-beige-dark: #ddd0a0;
+  --color-text-dark:  #1a1a1a;
+  --color-text-mid:   #333;
+  --color-text-muted: #555;
+  --color-text-grey:  #888;
+  --color-border:     #e0e0e0;
+  --color-bg:         #FFFFFF;
+  --color-bg-grey:    #f0f0f0;
+  --color-bg-grey2:   #f2f2f2;
+  --color-success:    #4CAF50;
+  --color-danger:     #e74c3c;
+  --color-income-text:#3a8a3a;
+  --color-expense-text:#c0392b;
+  --color-income-amount: #a8e6a3;
+  --color-expense-amount: #f4a5a5;
+
+  --font-family: "Georama", sans-serif;
+
+  --radius-sm: 8px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-pill: 40px;
+
+  --transition: 0.2s ease;
+
+  --max-width: 1280px;
+  --padding-h: 32px;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-family);
+  background-color: var(--color-bg);
+  color: var(--color-text-dark);
+  line-height: 1.5;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+ul {
+  list-style: none;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+.container {
+  width: 100%;
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 var(--padding-h);
+}

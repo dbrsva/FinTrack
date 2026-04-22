@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FinTrack — Настройки</title>
+  <link rel="stylesheet" href="../Style/main.css" />
+  <link rel="stylesheet" href="../Style/Layouts/header.css" />
+  <link rel="stylesheet" href="../Style/Layouts/footer.css" />
+  <link rel="stylesheet" href="../Style/Components/modals.css" />
+  <link rel="stylesheet" href="../Style/Pages/settings.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="../index.html" class="logo">FinTrack</a>
+      <nav><ul class="nav-list">
+        <li><a href="main.html"       class="nav-link">Главная</a></li>
+        <li><a href="budget.html"     class="nav-link">Бюджет</a></li>
+        <li><a href="categories.html" class="nav-link">Категории</a></li>
+        <li><a href="operations.html" class="nav-link">Операции</a></li>
+        <li><a href="advice.html"     class="nav-link">Советы</a></li>
+        <li><a href="settings.html"   class="nav-link active">Настройки</a></li>
+      </ul></nav>
+      <div class="header-user-info" id="header-user-info" style="display:none;">
+        <span class="header-user-email" id="header-user-email"></span>
+        <button class="btn-header-logout" id="btn-logout">Выйти</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="page-banner">
+    <div class="page-banner-inner">
+      <h1>Настройки</h1>
+      <span>управление приложением</span>
+    </div>
+  </div>
+
+  <main class="settings-main">
+    <div class="settings-inner">
+
+      <div class="settings-card settings-card-wide">
+        <div class="settings-card-title">Управление категориями</div>
+        <div class="categories-section" id="cats-section">
+          <div style="color:rgba(255,255,255,.6);font-size:.88rem;">Загрузка...</div>
+        </div>
+        <div class="categories-actions">
+          <button class="btn-add-cat" id="btn-open-add-cat">+ Добавить категорию</button>
+        </div>
+      </div>
+
+      <div class="settings-card settings-card-wide">
+        <div class="settings-card-title">О приложении</div>
+        <div class="about-content">
+          <div class="about-logo-block">
+            <div class="about-logo">FinTrack</div>
+            <div class="about-version">v1.0.0</div>
+          </div>
+          <div class="about-divider"></div>
+          <div class="about-info">
+            <div class="about-row">
+              <div class="about-row-label">Цель</div>
+              <div class="about-row-value">Учёт личных финансов, отслеживание расходов и доходов, контроль бюджета.</div>
+            </div>
+            <div class="about-row">
+              <div class="about-row-label">Стек</div>
+              <div class="about-row-value">HTML · CSS · Vanilla JS (ES Modules) · PHP · MySQL</div>
+            </div>
+            <div class="about-row">
+              <div class="about-row-label">Безопасность</div>
+              <div class="about-row-value">Prepared statements, HTML-экранирование инпутов, CSRF-токены, bcrypt паролей.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <div class="toast" id="toast"></div>
+
+  <footer class="site-footer">
+    <div class="footer-top">
+      <div class="footer-brand"><div class="footer-logo">FinTrack</div><p>FinTrack — твоя система учёта личных финансов без лишнего и сложного.</p></div>
+      <nav class="footer-nav"><h5>Компания</h5><ul><li><a href="#">о нас</a></li><li><a href="#">контакты</a></li><li><a href="#">FAQ</a></li><li><a href="#">помощь</a></li></ul></nav>
+    </div>
+    <div class="footer-bottom">© 2026 FinTrack. Все права защищены.</div>
+  </footer>
+
+  <div class="modal-overlay" id="modal-add-cat">
+    <div class="modal">
+      <button class="modal-close" data-close="modal-add-cat">✕</button>
+      <h2 class="modal-title">Новая категория</h2>
+      <div class="modal-form" id="form-add-cat">
+        <div class="field-full">
+          <input type="text" id="new-cat-name" placeholder="Название категории" maxlength="50" />
+        </div>
+        <div class="form-message" id="msg-add-cat"></div>
+        <div class="modal-actions">
+          <button class="btn-modal-cancel" data-close="modal-add-cat">Отмена</button>
+          <button class="btn-modal-save green" id="save-new-cat">Сохранить</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { escapeHtml, sanitizeInput, validateText, setFieldError, clearFormErrors } from '../Scripts/functions/validate.js';
+    import { Categories } from '../Scripts/functions/api.js';
+
+    let toastTimer;
+    function showToast(msg) {
+      const el = document.getElementById('toast');
+      el.textContent = msg;
+      el.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => el.classList.remove('show'), 2400);
+    }
+
+    const openModal  = id => { document.getElementById(id).classList.add('open');    document.body.style.overflow='hidden'; };
+    const closeModal = id => { document.getElementById(id).classList.remove('open'); document.body.style.overflow=''; };
+    document.querySelectorAll('[data-close]').forEach(el => el.addEventListener('click', () => closeModal(el.dataset.close)));
+    document.querySelectorAll('.modal-overlay').forEach(o => o.addEventListener('click', e => { if(e.target===o){ o.classList.remove('open'); document.body.style.overflow=''; } }));
+    document.addEventListener('keydown', e => { if(e.key==='Escape') document.querySelectorAll('.modal-overlay.open').forEach(o=>{ o.classList.remove('open'); document.body.style.overflow=''; }); });
+
+    const showMsg = (id,text,type='error') => { const el=document.getElementById(id); el.textContent=text; el.className=`form-message show ${type}`; };
+    const hideMsg = id => { document.getElementById(id).className='form-message'; };
+
+    async function loadCats() {
+      try {
+        const res  = await Categories.list();
+        const cats = res.data ?? [];
+        const sec  = document.getElementById('cats-section');
+        if (!cats.length) {
+          sec.innerHTML = '<div style="color:rgba(255,255,255,.6);font-size:.88rem;">Нет категорий. Добавьте первую!</div>';
+          return;
+        }
+        sec.innerHTML = cats.map(c => `
+          <div class="cat-row">
+            <div class="cat-row-left">
+              <span class="cat-name">${escapeHtml(c.CategoryName)}</span>
+            </div>
+            <button class="cat-delete" data-id="${c.CategoryID}" title="Удалить">✕</button>
+          </div>`).join('');
+        sec.querySelectorAll('.cat-delete').forEach(btn => btn.addEventListener('click', async () => {
+          if (!confirm('Удалить категорию?')) return;
+          try {
+            const r = await Categories.remove(parseInt(btn.dataset.id));
+            if (r.success) { loadCats(); showToast('Категория удалена'); }
+            else showToast('Ошибка удаления');
+          } catch(e) { showToast('Ошибка сервера'); }
+        }));
+      } catch(e) {
+        document.getElementById('cats-section').innerHTML = '<div style="color:rgba(255,255,255,.6);font-size:.88rem;">Ошибка загрузки</div>';
+      }
+    }
+
+    document.getElementById('btn-open-add-cat').addEventListener('click', () => { hideMsg('msg-add-cat'); openModal('modal-add-cat'); });
+    document.getElementById('save-new-cat').addEventListener('click', async () => {
+      const nameEl = document.getElementById('new-cat-name');
+      clearFormErrors(document.getElementById('form-add-cat'));
+      hideMsg('msg-add-cat');
+      const vr = validateText(nameEl.value, { min:1, max:50 });
+      if (!vr.valid) { setFieldError(nameEl, vr.error); return; }
+      try {
+        const btn=document.getElementById('save-new-cat'); btn.disabled=true;
+        const res = await Categories.add(sanitizeInput(nameEl.value));
+        btn.disabled=false;
+        if (res.success) { closeModal('modal-add-cat'); nameEl.value=''; loadCats(); showToast('Категория добавлена'); }
+        else showMsg('msg-add-cat', res.error||'Ошибка');
+      } catch(e) { document.getElementById('save-new-cat').disabled=false; showMsg('msg-add-cat','Ошибка сервера'); }
+    });
+
+    function updateHeaderAuth(ok,email){const b=document.getElementById('header-user-info'),e=document.getElementById('header-user-email');if(ok){b.style.display='flex';e.textContent=email;}else b.style.display='none';}
+    document.getElementById('btn-logout').addEventListener('click', async()=>{try{await fetch('../Backend/auth/logout.php',{credentials:'same-origin'});}catch(e){}updateHeaderAuth(false);});
+    (async()=>{try{const r=await fetch('../Backend/auth/check_session.php',{credentials:'same-origin'});const d=await r.json();if(d.logged_in)updateHeaderAuth(true,d.email);}catch(e){}})();
+
+    await loadCats();
+  </script>
+</body>
+</html>

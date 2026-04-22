@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FinTrack — управляй деньгами осознанно</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+  <link rel="stylesheet" href="Style/main.css" />
+  <link rel="stylesheet" href="Style/Layouts/header.css" />
+  <link rel="stylesheet" href="Style/Layouts/footer.css" />
+  <link rel="stylesheet" href="Style/Components/modals.css" />
+
+  <link rel="stylesheet" href="Style/Pages/home.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <nav>
+        <ul class="nav-list">
+          <a href="index.html" class="logo">FinTrack</a>
+          <li><a href="Pages/main.html" class="nav-link">Главная</a></li>
+          <li><a href="Pages/budget.html" class="nav-link">Бюджет</a></li>
+          <li><a href="Pages/categories.html" class="nav-link">Категории</a></li>
+          <li><a href="Pages/operations.html" class="nav-link">Операции</a></li>
+          <li><a href="Pages/advice.html" class="nav-link">Советы</a></li>
+          <li><a href="#" class="nav-link">Настройки</a></li>
+        </ul>
+      </nav>
+
+      <div class="header-auth" id="header-auth">
+        <button class="btn-header-login" id="btn-open-login">Войти</button>
+        <button class="btn-header-register" id="btn-open-register">Регистрация</button>
+      </div>
+
+      <div class="header-user-info" id="header-user-info" style="display:none;">
+        <span class="header-user-email" id="header-user-email"></span>
+        <button class="btn-header-logout" id="btn-logout">Выйти</button>
+      </div>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="hero-inner">
+      <h1 class="hero-title">FinTrack&nbsp;— управляй<br>деньгами<br>осознанно.</h1>
+    </div>
+  </section>
+
+  <section class="features-section">
+    <div class="features-inner">
+      <h2 class="features-title">Ваш финансовый инструмент</h2>
+      <div class="features-grid">
+        <article class="feature-card">
+          <h4>Контроль операций</h4>
+          <p>Добавляйте доходы и расходы вручную, отслеживайте историю и всегда видьте реальную картину своих финансов.</p>
+        </article>
+        <article class="feature-card">
+          <h4>Умный бюджет</h4>
+          <p>Устанавливайте лимиты на неделю или месяц и получайте предупреждения при приближении к пределу.</p>
+        </article>
+        <article class="feature-card">
+          <h4>Категории под вас</h4>
+          <p>Создавайте собственные категории или используйте системные — всё настраивается под ваш стиль жизни.</p>
+        </article>
+        <article class="feature-card">
+          <h4>Финансовая ясность</h4>
+          <p>Наглядный баланс, структура расходов и удобная навигация помогают принимать взвешенные решения.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <div class="footer-logo">FinTrack</div>
+        <p>FinTrack — твоя система учёта личных финансов без лишнего и сложного.</p>
+      </div>
+      <nav class="footer-nav">
+        <h5>Компания</h5>
+        <ul>
+          <li><a href="#">о нас</a></li>
+          <li><a href="#">контакты</a></li>
+          <li><a href="#">FAQ</a></li>
+          <li><a href="#">помощь</a></li>
+        </ul>
+      </nav>
+    </div>
+    <div class="footer-bottom">© 2026 FinTrack. Все права защищены.</div>
+  </footer>
+
+
+  <div class="modal-overlay" id="modal-auth">
+    <div class="modal">
+      <button class="modal-close" id="modal-auth-close">×</button>
+
+      <div class="modal-title" id="modal-auth-title">Войти в аккаунт</div>
+
+      <div class="modal-tabs">
+        <button class="modal-tab active" id="tab-login" onclick="switchTab('login')">Войти</button>
+        <button class="modal-tab" id="tab-register" onclick="switchTab('register')">Регистрация</button>
+      </div>
+
+      <div class="modal-form">
+        <div class="field-full">
+          <input type="email" id="auth-email" placeholder="Email" autocomplete="email" />
+        </div>
+        <div class="field-full">
+          <input type="password" id="auth-password" placeholder="Пароль (минимум 6 символов)" autocomplete="current-password" />
+        </div>
+        <div class="form-message" id="auth-message"></div>
+        <div class="modal-actions">
+          <button class="btn-modal-cancel" id="modal-auth-cancel">Отмена</button>
+          <button class="btn-modal-save" id="auth-submit">Войти</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <script>
+    let currentTab = 'login';
+
+    function switchTab(tab) {
+      currentTab = tab;
+      document.getElementById('tab-login').classList.toggle('active', tab === 'login');
+      document.getElementById('tab-register').classList.toggle('active', tab === 'register');
+      document.getElementById('modal-auth-title').textContent =
+        tab === 'login' ? 'Войти в аккаунт' : 'Создать аккаунт';
+      document.getElementById('auth-submit').textContent =
+        tab === 'login' ? 'Войти' : 'Зарегистрироваться';
+      hideMessage();
+      document.getElementById('auth-email').value = '';
+      document.getElementById('auth-password').value = '';
+    }
+
+    function openModal(tab) {
+      switchTab(tab);
+      document.getElementById('modal-auth').classList.add('open');
+      setTimeout(() => document.getElementById('auth-email').focus(), 250);
+    }
+
+    function closeModal() {
+      document.getElementById('modal-auth').classList.remove('open');
+    }
+
+    document.getElementById('btn-open-login').addEventListener('click', () => openModal('login'));
+    document.getElementById('btn-open-register').addEventListener('click', () => openModal('register'));
+    document.getElementById('modal-auth-close').addEventListener('click', closeModal);
+    document.getElementById('modal-auth-cancel').addEventListener('click', closeModal);
+
+    document.getElementById('modal-auth').addEventListener('click', function(e) {
+      if (e.target === this) closeModal();
+    });
+
+    function showMessage(text, type) {
+      const el = document.getElementById('auth-message');
+      el.textContent = text;
+      el.className = 'form-message show ' + type;
+    }
+    function hideMessage() {
+      const el = document.getElementById('auth-message');
+      el.className = 'form-message';
+      el.textContent = '';
+    }
+
+    document.getElementById('auth-submit').addEventListener('click', handleSubmit);
+    document.getElementById('auth-password').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') handleSubmit();
+    });
+
+    async function handleSubmit() {
+      const email    = document.getElementById('auth-email').value.trim();
+      const password = document.getElementById('auth-password').value.trim();
+      const btn      = document.getElementById('auth-submit');
+
+      if (!email || !password) { showMessage('Заполните все поля', 'error'); return; }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showMessage('Неверный формат email', 'error'); return; }
+      if (password.length < 6) { showMessage('Пароль должен быть не менее 6 символов', 'error'); return; }
+
+      btn.disabled = true;
+      hideMessage();
+
+      const endpoint = currentTab === 'login'
+        ? 'Backend/auth/login.php'
+        : 'Backend/auth/register.php';
+
+      try {
+        const csrfRes   = await fetch('Backend/auth/csrf_token.php', { credentials: 'same-origin' });
+        const csrfData  = await csrfRes.json();
+        const csrfToken = csrfData.csrf_token;
+
+        const res  = await fetch(endpoint, {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password, csrf_token: csrfToken })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          showMessage(data.message, 'success');
+          setTimeout(() => { closeModal(); updateHeaderAuth(true, email); }, 1000);
+        } else {
+          showMessage(data.error || 'Что-то пошло не так', 'error');
+        }
+      } catch (err) {
+        showMessage('Ошибка соединения с сервером', 'error');
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    function updateHeaderAuth(loggedIn, email) {
+      const authBlock = document.getElementById('header-auth');
+      const userBlock = document.getElementById('header-user-info');
+      const emailEl   = document.getElementById('header-user-email');
+      if (loggedIn) {
+        authBlock.style.display = 'none';
+        userBlock.style.display = 'flex';
+        emailEl.textContent = email;
+      } else {
+        authBlock.style.display = 'flex';
+        userBlock.style.display = 'none';
+      }
+    }
+
+    document.getElementById('btn-logout').addEventListener('click', async () => {
+      try { await fetch('Backend/auth/logout.php', { credentials: 'same-origin' }); } catch(e) {}
+      updateHeaderAuth(false);
+    });
+
+    (async function checkSession() {
+      try {
+        const res  = await fetch('Backend/auth/check_session.php', { credentials: 'same-origin' });
+        const data = await res.json();
+        if (data.logged_in) updateHeaderAuth(true, data.email);
+      } catch(e) {}
+    })();
+  </script>
+
+</body>
+</html>

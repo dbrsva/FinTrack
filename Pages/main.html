@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FinTrack — Главная</title>
+  <link rel="stylesheet" href="../Style/main.css" />
+  <link rel="stylesheet" href="../Style/Layouts/header.css" />
+  <link rel="stylesheet" href="../Style/Layouts/footer.css" />
+  <link rel="stylesheet" href="../Style/Components/modals.css" />
+  <link rel="stylesheet" href="../Style/Pages/main-page.css" />
+  <style>
+    .field-hint{font-size:.78rem;color:rgba(255,255,255,.85);margin-top:3px;display:block;}
+    .summary-value.balance-pos{color:var(--color-income-text);}
+    .summary-value.balance-neg{color:var(--color-expense-text);}
+    .summary-value.savings-pos{color:var(--color-income-text);}
+    .summary-value.savings-neg{color:var(--color-expense-text);}
+    .loading-row{background:rgba(255,255,255,.08);border-radius:var(--radius-md);height:58px;animation:pulse 1.2s infinite alternate;}
+    @keyframes pulse{from{opacity:.5;}to{opacity:1;}}
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="../index.html" class="logo">FinTrack</a>
+      <nav><ul class="nav-list">
+        <li><a href="main.html"       class="nav-link active">Главная</a></li>
+        <li><a href="budget.html"     class="nav-link">Бюджет</a></li>
+        <li><a href="categories.html" class="nav-link">Категории</a></li>
+        <li><a href="operations.html" class="nav-link">Операции</a></li>
+        <li><a href="advice.html"     class="nav-link">Советы</a></li>
+        <li><a href="settings.html"   class="nav-link">Настройки</a></li>
+      </ul></nav>
+      <div class="header-user-info" id="header-user-info" style="display:none;">
+        <span class="header-user-email" id="header-user-email"></span>
+        <button class="btn-header-logout" id="btn-logout">Выйти</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="balance-bar">
+    <div class="balance-bar-inner">
+      <div class="balance-box">
+        <span class="balance-amount" id="balance-display">Загрузка...</span>
+        <span class="balance-sub">баланс: доходы − расходы</span>
+      </div>
+      <div class="balance-actions">
+        <button class="btn-outline-white" id="btn-add-income">Добавить доход</button>
+        <button class="btn-outline-white" id="btn-add-expense">Добавить расход</button>
+      </div>
+    </div>
+  </div>
+
+  <main class="dashboard">
+    <div class="dashboard-inner">
+
+      <section class="card-blue">
+        <h2 class="card-title">Сегодняшние расходы</h2>
+        <div class="expense-rows" id="expense-rows">
+          <div class="loading-row"></div>
+          <div class="loading-row"></div>
+          <div class="loading-row"></div>
+        </div>
+        <div class="card-actions">
+          <button class="btn-pill" onclick="window.location.href='operations.html?period=today'">показать все</button>
+          <button class="btn-pill" onclick="window.location.href='operations.html'">операции</button>
+        </div>
+      </section>
+
+      <div class="right-col">
+
+        <section class="tip-card" id="tip-card">
+          <div class="tip-card-title">Совет дня</div>
+          <p id="tip-text">Загрузка...</p>
+        </section>
+
+        <section class="summary-card">
+          <div class="summary-card-title">Финансовая сводка за сегодня</div>
+          <div class="summary-row">
+            <span class="summary-label">Доходы:</span>
+            <span class="summary-value income" id="s-income">—</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-label">Расходы:</span>
+            <span class="summary-value total"  id="s-expense">—</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-label">Баланс:</span>
+            <span class="summary-value total"  id="s-balance">—</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-label">Экономия за месяц:</span>
+            <span class="summary-value income" id="s-savings">—</span>
+          </div>
+        </section>
+
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-top">
+      <div class="footer-brand"><div class="footer-logo">FinTrack</div><p>FinTrack — твоя система учёта личных финансов без лишнего и сложного.</p></div>
+      <nav class="footer-nav"><h5>Компания</h5><ul><li><a href="#">о нас</a></li><li><a href="#">контакты</a></li><li><a href="#">FAQ</a></li><li><a href="#">помощь</a></li></ul></nav>
+    </div>
+    <div class="footer-bottom">© 2026 FinTrack. Все права защищены.</div>
+  </footer>
+
+  <!-- Модал: добавить доход -->
+  <div class="modal-overlay" id="modal-income">
+    <div class="modal">
+      <button class="modal-close" data-close="modal-income">×</button>
+      <div class="modal-title">Добавить доход</div>
+      <div class="modal-form" id="form-income">
+        <div class="field-full"><input type="number" id="income-amount" placeholder="Сумма, ₽" min="0.01" step="0.01" /></div>
+        <div class="field-full"><input type="text"   id="income-desc"   placeholder="Описание" maxlength="200" /></div>
+        <div class="field-row">
+          <select id="income-category"><option value="">Категория</option></select>
+          <input type="date" id="income-date" />
+        </div>
+        <div class="form-message" id="msg-income"></div>
+        <div class="modal-actions">
+          <button class="btn-modal-cancel" data-close="modal-income">Отмена</button>
+          <button class="btn-modal-save"   id="save-income">Сохранить</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Модал: добавить расход -->
+  <div class="modal-overlay" id="modal-expense">
+    <div class="modal">
+      <button class="modal-close" data-close="modal-expense">×</button>
+      <div class="modal-title">Добавить расход</div>
+      <div class="modal-form" id="form-expense">
+        <div class="field-full"><input type="number" id="expense-amount" placeholder="Сумма, ₽" min="0.01" step="0.01" /></div>
+        <div class="field-full"><input type="text"   id="expense-desc"   placeholder="Описание" maxlength="200" /></div>
+        <div class="field-row">
+          <select id="expense-category"><option value="">Категория</option></select>
+          <input type="date" id="expense-date" />
+        </div>
+        <div class="form-message" id="msg-expense"></div>
+        <div class="modal-actions">
+          <button class="btn-modal-cancel" data-close="modal-expense">Отмена</button>
+          <button class="btn-modal-save"   id="save-expense">Сохранить</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { escapeHtml, sanitizeInput, validateAmount, validateText, validateDate, setFieldError, clearFormErrors, formatMoney } from '../Scripts/functions/validate.js';
+    import { Summary, Operations, Categories } from '../Scripts/functions/api.js';
+
+    const fmt = n => formatMoney(n,'₽');
+    const CAT_ICONS = {'Зарплата':'💼','Фриланс':'💻','Инвестиции':'📈','Подарок':'🎁','Продукты':'🛒','Транспорт':'🚇','Кафе':'☕','Одежда':'👕','Здоровье':'💊','Развлечения':'🎬','Коммунальные':'💡'};
+    const getIcon = n => { if(!n) return '💰'; for(const[k,v] of Object.entries(CAT_ICONS)){if(n.toLowerCase().includes(k.toLowerCase()))return v;} return '💰'; };
+
+    const openModal  = id => { document.getElementById(id).classList.add('open');    document.body.style.overflow='hidden'; };
+    const closeModal = id => { document.getElementById(id).classList.remove('open'); document.body.style.overflow=''; };
+    document.querySelectorAll('[data-close]').forEach(el => el.addEventListener('click', () => closeModal(el.dataset.close)));
+    document.querySelectorAll('.modal-overlay').forEach(o => o.addEventListener('click', e => { if(e.target===o){ o.classList.remove('open'); document.body.style.overflow=''; } }));
+    document.addEventListener('keydown', e => { if(e.key==='Escape') document.querySelectorAll('.modal-overlay.open').forEach(o=>{ o.classList.remove('open'); document.body.style.overflow=''; }); });
+
+    const showMsg = (id,text,type='error') => { const el=document.getElementById(id); el.textContent=text; el.className=`form-message show ${type}`; };
+    const hideMsg = id => { document.getElementById(id).className='form-message'; };
+
+    // ── Загрузить категории в select'ы ──
+    async function loadCatsIntoSelects() {
+      try {
+        const res = await Categories.list();
+        const cats = res.data ?? [];
+        ['income-category','expense-category'].forEach(selId => {
+          const sel = document.getElementById(selId);
+          sel.innerHTML = '<option value="">Категория</option>';
+          cats.forEach(c => {
+            const opt=document.createElement('option');
+            opt.value=c.CategoryID; opt.textContent=escapeHtml(c.CategoryName);
+            sel.appendChild(opt);
+          });
+        });
+      } catch(e){}
+    }
+
+    // ── Загрузить сводку ──
+    async function loadSummary() {
+      try {
+        const d = await Summary.get();
+
+        // Баланс (верхняя полоса)
+        const balEl = document.getElementById('balance-display');
+        const bal   = d.balance ?? 0;
+        balEl.textContent = 'Баланс: ' + fmt(bal);
+        balEl.style.color = bal >= 0 ? 'var(--color-text-dark)' : 'var(--color-expense-text)';
+
+        // Сводка сегодня
+        document.getElementById('s-income').textContent  = fmt(d.income_today  ?? 0);
+        document.getElementById('s-expense').textContent = fmt(d.expense_today ?? 0);
+        const sbal  = (d.income_today ?? 0) - (d.expense_today ?? 0);
+        const sbEl  = document.getElementById('s-balance');
+        sbEl.textContent = fmt(sbal);
+        sbEl.className   = 'summary-value total ' + (sbal>=0 ? 'balance-pos' : 'balance-neg');
+
+        const sav   = d.savings_month ?? 0;
+        const savEl = document.getElementById('s-savings');
+        savEl.textContent = fmt(sav);
+        savEl.className   = 'summary-value ' + (sav>=0 ? 'savings-pos' : 'savings-neg');
+
+        // Сегодняшние операции
+        const rows  = document.getElementById('expense-rows');
+        const ops   = d.today_ops ?? [];
+        if (!ops.length) {
+          rows.innerHTML = '<div class="exp-empty">Сегодня операций нет</div>';
+        } else {
+          rows.innerHTML = ops.map(op => {
+            const isExp = op.OperationType==='expense';
+            const sign  = isExp ? '−' : '+';
+            const icon  = getIcon(op.CategoryName);
+            const title = escapeHtml(op.Comment || op.CategoryName || 'Прочее');
+            const amt   = parseFloat(op.Sum);
+            return `<div class="expense-row">
+              <span class="exp-name">${icon} ${title}</span>
+              <span class="exp-amount" style="color:${isExp?'var(--color-expense-text)':'var(--color-income-text)'}">${sign}${amt.toLocaleString('ru-RU')} ₽</span>
+            </div>`;
+          }).join('');
+        }
+
+        // Совет дня
+        const tips  = d.tips ?? [];
+        const bycat = d.by_category ?? [];
+
+      } catch(e) {
+        document.getElementById('balance-display').textContent = 'Ошибка загрузки данных';
+        document.getElementById('expense-rows').innerHTML = '<div class="exp-empty">Нет данных</div>';
+      }
+    }
+
+    // ── Загрузить совет дня ──
+    async function loadTip() {
+      try {
+        const res = await fetch('../Backend/advice.php');
+        const tips = await res.json();
+        if (tips && tips.length) {
+          const t = tips[Math.floor(Math.random() * tips.length)];
+          document.getElementById('tip-text').textContent = t.TipText;
+        }
+      } catch(e){}
+    }
+
+    // ── Сохранить операцию ──
+    async function saveOp(type) {
+      const p   = type==='income'?'income':'expense';
+      const aEl = document.getElementById(`${p}-amount`);
+      const dEl = document.getElementById(`${p}-desc`);
+      const cEl = document.getElementById(`${p}-category`);
+      const dtEl= document.getElementById(`${p}-date`);
+      clearFormErrors(document.getElementById(`form-${p}`));
+      hideMsg(`msg-${p}`);
+      const aR=validateAmount(aEl.value),dR=validateText(dEl.value,{required:false,max:200}),dtR=validateDate(dtEl.value);
+      let err=false;
+      if(!aR.valid){setFieldError(aEl,aR.error);err=true;}
+      if(!dR.valid){setFieldError(dEl,dR.error);err=true;}
+      if(err) return;
+      try {
+        const btn=document.getElementById(`save-${p}`); btn.disabled=true;
+        const res=await Operations.add({sum:aR.value,type,category_id:parseInt(cEl.value)||0,comment:sanitizeInput(dEl.value),date:dtR.value+' 00:00:00'});
+        btn.disabled=false;
+        if(res.success){ closeModal(`modal-${p}`); aEl.value=''; dEl.value=''; dtEl.value=''; cEl.value=''; loadSummary(); }
+        else showMsg(`msg-${p}`,res.error||'Ошибка');
+      } catch(e){ document.getElementById(`save-${p}`).disabled=false; showMsg(`msg-${p}`,'Ошибка сервера'); }
+    }
+
+    document.getElementById('save-income').addEventListener('click',  () => saveOp('income'));
+    document.getElementById('save-expense').addEventListener('click', () => saveOp('expense'));
+    document.getElementById('btn-add-income').addEventListener('click',  () => { hideMsg('msg-income');  openModal('modal-income');  });
+    document.getElementById('btn-add-expense').addEventListener('click', () => { hideMsg('msg-expense'); openModal('modal-expense'); });
+
+    // ── Сессия ──
+    function updateHeaderAuth(ok,email){const b=document.getElementById('header-user-info'),e=document.getElementById('header-user-email');if(ok){b.style.display='flex';e.textContent=email;}else b.style.display='none';}
+    document.getElementById('btn-logout').addEventListener('click', async()=>{try{await fetch('../Backend/auth/logout.php',{credentials:'same-origin'});}catch(e){}updateHeaderAuth(false);});
+    (async()=>{try{const r=await fetch('../Backend/auth/check_session.php',{credentials:'same-origin'});const d=await r.json();if(d.logged_in)updateHeaderAuth(true,d.email);}catch(e){}})();
+
+    await loadCatsIntoSelects();
+    await Promise.all([loadSummary(), loadTip()]);
+  </script>
+</body>
+</html>
